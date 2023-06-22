@@ -2,11 +2,9 @@
 
 
 # Docker image
----
 In the [StackExchange.Redis documentation](https://stackexchange.github.io/StackExchange.Redis/Server), it references the [following docker image](https://hub.docker.com/_/redis/)
 
 ## Run the Docker container
-```
 docker run -p 6379:6379 --name some-redis -d redis:latest
 ```
 OR
@@ -31,7 +29,6 @@ docker exec -it some-redis redis-cli
 ```
 
 # Redis Commands
----
 - [Commands](https://redis.io/commands/)  
    - Appear to be executed with the execute command: ```db.ExecuteAsync("PING")```
 
