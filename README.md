@@ -23,6 +23,10 @@ services:
     ports:
       - 6379:6379
 ```
+You can run the docker compose command by navigating to the folder where the file is located and running these commands
+- ```docker compose up -d```  Creates a container in detached mode so you run CLI commands as specified below.
+- ```docker compose down```   Stops the container and removes it 
+
 ##  Run redis CLI commands within the Docker container
 Attach to the running container using this command.  It assumes the name of the continaer is "some-redis"
 ```
