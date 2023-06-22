@@ -5,6 +5,7 @@
 In the [StackExchange.Redis documentation](https://stackexchange.github.io/StackExchange.Redis/Server), it references the [following docker image](https://hub.docker.com/_/redis/)
 
 ## Run the Docker container
+```
 docker run -p 6379:6379 --name some-redis -d redis:latest
 ```
 OR
