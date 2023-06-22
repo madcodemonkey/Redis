@@ -1,11 +1,17 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Example1;
+using Microsoft.Extensions.Logging;
 
 IConfiguration config = SetupConfiguration();
 IServiceProvider serviceProvider = RegisterDependencies(config);
 
-// var ddd = serviceProvider.GetRequiredService<>()
+
+
+
+var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+logger.LogWarning("This is a warning");
 
 
 
@@ -16,10 +22,20 @@ static IServiceProvider RegisterDependencies(IConfiguration configuration)
     var collection = new ServiceCollection();
     collection.AddSingleton(configuration);
 
-    // collection.AddScoped().AddSingleton<>
+    var settings = new ExampleSettings()
+    {
+        RedisConnection = configuration["RedisConnection"]
+    };
+
+    collection.AddSingleton(settings);
+    collection.AddSingleton<IRedisService, RedisService>();
+
+    collection.AddLogging(configure => configure.AddConsole());
+
 
     var serviceProvider = collection.BuildServiceProvider();
 
+ 
     return serviceProvider;
 }
 
