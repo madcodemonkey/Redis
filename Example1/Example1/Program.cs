@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using Example1;
 using Microsoft.Extensions.Logging;
@@ -7,14 +6,14 @@ using Microsoft.Extensions.Logging;
 IConfiguration config = SetupConfiguration();
 IServiceProvider serviceProvider = RegisterDependencies(config);
 
-
-
-
 var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 logger.LogWarning("This is a warning");
 
+var stringTest = serviceProvider.GetRequiredService<IStringTesting>();
+await stringTest.WorkAsync(config);
 
-
+var hashTest = serviceProvider.GetRequiredService<IHashEntryTesting>();
+await hashTest.WorkAsync(config);
 
 static IServiceProvider RegisterDependencies(IConfiguration configuration)
 {
@@ -27,14 +26,13 @@ static IServiceProvider RegisterDependencies(IConfiguration configuration)
         RedisConnection = configuration["RedisConnection"]
     };
 
+    collection.AddLogging(configure => configure.AddConsole());
     collection.AddSingleton(settings);
     collection.AddSingleton<IRedisService, RedisService>();
-
-    collection.AddLogging(configure => configure.AddConsole());
-
-
+    collection.AddTransient<IStringTesting, StringTesting>();
+    collection.AddTransient<IHashEntryTesting, HashEntryTesting>();
+    
     var serviceProvider = collection.BuildServiceProvider();
-
  
     return serviceProvider;
 }

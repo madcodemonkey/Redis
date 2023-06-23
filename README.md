@@ -1,7 +1,7 @@
 # Redis
 
 
-# Docker image
+# Docker Setup
 In the [StackExchange.Redis documentation](https://stackexchange.github.io/StackExchange.Redis/Server), it references the [following docker image](https://hub.docker.com/_/redis/)
 
 ## Run the Docker container
@@ -46,3 +46,9 @@ docker exec -it some-redis redis-cli
    - ```hkeys <keyname>```   (e.g., hkeys mykey)
    - ```hmget <keyname> <fieldname>```  (e.g., hmget mykey myfield)
 
+
+# Application setup
+If you are using the Docker container, you can use this Redis connection string:
+```
+localhost:6379,ssl=false,abortConnect=False
+```
