@@ -48,7 +48,8 @@ docker exec -it some-redis redis-cli
 
 
 # Application setup
-If you are using the Docker container, you can use this Redis connection string:
+You'll need to update your Redis connection string.  If you are using the Docker container, you can use this Redis connection string:
 ```
 localhost:6379,ssl=false,abortConnect=False
 ```
+If you are using Azure, you will need obtain a connection string from the portal.  For Azure Cahce  for Redis, it's under "Access Keys" and you want either the primary or secondary connection string.

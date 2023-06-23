@@ -30,22 +30,22 @@ public class HashEntryTesting : IHashEntryTesting
             new HashEntry("007", JsonSerializer.Serialize(e007)),
         };
         
-        Console.WriteLine($"{Environment.NewLine}: Cache command: HMSET {key} via HashSetAsync()");
+        Console.WriteLine($"{Environment.NewLine}Cache command: HMSET {key} via HashSetAsync()");
         await _redisService.HashSetAsync(key, hashFields);
 
-        Console.WriteLine($"{Environment.NewLine}: Cache command: HGET {key} Hash Field: syncId via HashGetAsync()");
+        Console.WriteLine($"{Environment.NewLine}Cache command: HGET {key} Hash Field: syncId via HashGetAsync()");
         RedisValue syncIddata = await _redisService.HashGetAsync(key, "syncId");
         string syncIdDataAsString = syncIddata.HasValue ? syncIddata.ToString() : string.Empty;
         Console.WriteLine($"Cache response: {syncIdDataAsString}");
 
-        Console.WriteLine($"{Environment.NewLine}: Cache command: HGET {key} Hash Field: 007 via HashGetAsync()");
+        Console.WriteLine($"{Environment.NewLine}Cache command: HGET {key} Hash Field: 007 via HashGetAsync()");
         RedisValue bonddata = await _redisService.HashGetAsync(key, "007");
         string bonddataAsString = bonddata.HasValue ? bonddata.ToString() : string.Empty;
         Console.WriteLine($"Cache response: {bonddataAsString}");
 
         Employee? d007 = JsonSerializer.Deserialize<Employee>(bonddataAsString);
 
-        Console.WriteLine($"{Environment.NewLine}: Cache command: HGETALL {key} Hash Field: 007 via HashGetAsync()");
+        Console.WriteLine($"{Environment.NewLine}Cache command: HGETALL {key} Hash Field: 007 via HashGetAsync()");
         HashEntry[] allData = await _redisService.HashGetAllAsync(key);
 
         foreach (HashEntry entry in allData)

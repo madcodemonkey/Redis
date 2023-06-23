@@ -5,15 +5,27 @@ using Microsoft.Extensions.Logging;
 
 IConfiguration config = SetupConfiguration();
 IServiceProvider serviceProvider = RegisterDependencies(config);
+ILogger<Program> logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
-var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
-logger.LogWarning("This is a warning");
+try
+{
+    Console.WriteLine("------------------------------ Start String test -------------------------------------");
+    var stringTest = serviceProvider.GetRequiredService<IStringTesting>();
+    await stringTest.WorkAsync(config);
+    Console.WriteLine("------------------------------ End String test -------------------------------------");
 
-var stringTest = serviceProvider.GetRequiredService<IStringTesting>();
-await stringTest.WorkAsync(config);
 
-var hashTest = serviceProvider.GetRequiredService<IHashEntryTesting>();
-await hashTest.WorkAsync(config);
+    Console.WriteLine("------------------------------ Start HASH test -------------------------------------");
+    var hashTest = serviceProvider.GetRequiredService<IHashEntryTesting>();
+    await hashTest.WorkAsync(config);
+    Console.WriteLine("------------------------------ End HASH test -------------------------------------");
+
+}
+catch (Exception ex)
+{
+   logger.LogError(ex, "Something went wrong!");    
+}
+
 
 static IServiceProvider RegisterDependencies(IConfiguration configuration)
 {
