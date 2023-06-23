@@ -31,7 +31,7 @@ public class HashEntryTesting : IHashEntryTesting
         };
         
         Console.WriteLine($"{Environment.NewLine}Cache command: HMSET {key} via HashSetAsync()");
-        await _redisService.HashSetAsync(key, hashFields);
+        await _redisService.HashSetAsync(key, hashFields, TimeSpan.FromSeconds(3));
 
         Console.WriteLine($"{Environment.NewLine}Cache command: HGET {key} Hash Field: syncId via HashGetAsync()");
         RedisValue syncIddata = await _redisService.HashGetAsync(key, "syncId");
@@ -44,14 +44,32 @@ public class HashEntryTesting : IHashEntryTesting
         Console.WriteLine($"Cache response: {bonddataAsString}");
 
         Employee? d007 = JsonSerializer.Deserialize<Employee>(bonddataAsString);
+        Console.WriteLine(d007 != null ? "Employee deserialized" : "Nothing deserialized");
 
-        Console.WriteLine($"{Environment.NewLine}Cache command: HGETALL {key} Hash Field: 007 via HashGetAsync()");
+        Console.WriteLine($"{Environment.NewLine}Cache command: HGETALL {key} via HashGetAllAsync()");
         HashEntry[] allData = await _redisService.HashGetAllAsync(key);
 
         foreach (HashEntry entry in allData)
         {
             Console.WriteLine($"Name: {entry.Name}  Value: {entry.Value}");
         }
+
+        Console.WriteLine("Waiting 4 seconds to see if hash expires...");
+        await Task.Delay(TimeSpan.FromSeconds(4));
+
+        Console.WriteLine($"{Environment.NewLine}Cache command: HGETALL {key} via HashGetAllAsync()");
+        allData = await _redisService.HashGetAllAsync(key);
+
+        if (allData.Length > 0)
+        {
+            Console.WriteLine("BAD! Cache did NOT expire!");
+        }
+        else
+        {
+            Console.WriteLine("GOOD!  Cache expired!");
+        }
+
+
 
     }
 }

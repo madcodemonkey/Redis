@@ -75,14 +75,31 @@ public class RedisService : IRedisService, IDisposable
     /// </summary>
     /// <param name="key">The key of the hash.</param>
     /// <param name="hashFields">The entries to set in the hash.</param>
+    /// <param name="expiry">The expiry to set.</param>
     /// <param name="flags">The flags to use for this operation.</param>
     /// <remarks><seealso href="https://redis.io/commands/hmset"/></remarks>
-    public async Task HashSetAsync(RedisKey key, HashEntry[] hashFields, CommandFlags flags = CommandFlags.None)
+    public async Task HashSetAsync(RedisKey key, HashEntry[] hashFields, TimeSpan? expiry = null, CommandFlags flags = CommandFlags.None)
     {
         try
         {
             var db = GetDatabase();
-            await db.HashSetAsync(key, hashFields, flags);
+
+            if (expiry == null)
+            {
+                await db.HashSetAsync(key, hashFields, flags);
+            }
+            else
+            {
+                // Reference: https://stackexchange.github.io/StackExchange.Redis/Transactions.html#and-in-stackexchangeredis
+                var transaction = db.CreateTransaction();
+#pragma warning disable CS4014
+                transaction.HashSetAsync(key, hashFields, flags);
+                transaction.KeyExpireAsync(key, expiry);
+#pragma warning restore CS4014
+                await transaction.ExecuteAsync();
+            }
+
+
         }
         catch (Exception e)
         {

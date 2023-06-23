@@ -68,7 +68,9 @@ public interface IRedisService
     /// </summary>
     /// <param name="key">The key of the hash.</param>
     /// <param name="hashFields">The entries to set in the hash.</param>
+    /// <param name="expiry">The expiry to set.</param>
     /// <param name="flags">The flags to use for this operation.</param>
     /// <remarks><seealso href="https://redis.io/commands/hmset"/></remarks>
-    Task HashSetAsync(RedisKey key, HashEntry[] hashFields, CommandFlags flags = CommandFlags.None);
+    Task HashSetAsync(RedisKey key, HashEntry[] hashFields, TimeSpan? expiry = null, CommandFlags flags = CommandFlags.None);
+
 }
