@@ -4,6 +4,9 @@ using StackExchange.Redis;
 
 namespace Example1;
 
+/// <summary>
+/// Uses IRedisService directly
+/// </summary>
 public class HashEntryTesting : IHashEntryTesting
 {
     private readonly IRedisService _redisService;

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Example1;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 IConfiguration config = SetupConfiguration();
@@ -19,6 +20,11 @@ try
     var hashTest = serviceProvider.GetRequiredService<IHashEntryTesting>();
     await hashTest.WorkAsync(config);
     Console.WriteLine("------------------------------ End HASH test -------------------------------------");
+
+    Console.WriteLine("------------------------------ Start CACHE HASH test -------------------------------------");
+    var cacheHashTest = serviceProvider.GetRequiredService<ICacheHashEntryTesting>();
+    await cacheHashTest.WorkAsync(config);
+    Console.WriteLine("------------------------------ End CACHE HASH test -------------------------------------");
 
 }
 catch (Exception ex)
@@ -39,10 +45,17 @@ static IServiceProvider RegisterDependencies(IConfiguration configuration)
     };
 
     collection.AddLogging(configure => configure.AddConsole());
+
+    // Singletons
     collection.AddSingleton(settings);
     collection.AddSingleton<IRedisService, RedisService>();
-    collection.AddTransient<IStringTesting, StringTesting>();
+    collection.AddSingleton<IMemoryCache, MemoryCache>(); 
+    // Transient
+    collection.AddTransient<ICacheHashEntryTesting, CacheHashEntryTesting>();
+    collection.AddTransient<ICacheStringService, CacheStringService>();
+    collection.AddTransient<ICacheHashSetService, CacheHashSetService>();
     collection.AddTransient<IHashEntryTesting, HashEntryTesting>();
+    collection.AddTransient<IStringTesting, StringTesting>();
     
     var serviceProvider = collection.BuildServiceProvider();
  

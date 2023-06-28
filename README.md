@@ -36,8 +36,7 @@ docker exec -it some-redis redis-cli
 ```
 
 # Redis Commands
-- [Commands](https://redis.io/commands/)  
-   - Appear to be executed with the execute command: ```db.ExecuteAsync("PING")```
+- [Commands](https://redis.io/commands/)     
 
 ## Useful CLI Commands
 - Clear out the cache completely: ```FLUSHALL``` OR ```FLUSHDB```

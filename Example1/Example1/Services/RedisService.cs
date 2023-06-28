@@ -18,6 +18,33 @@ public class RedisService : IRedisService, IDisposable
         _settings = settings;
     }
 
+    /// <summary>
+    /// Clears a Redis key
+    /// </summary>
+    /// <param name="key">The key to delete/remove.</param>
+    /// <param name="flags">The flags to use for this operation.</param>
+    /// <remarks>
+    /// <seealso href="https://redis.io/commands/del"/>,
+    /// <seealso href="https://redis.io/commands/unlink"/>
+    /// </remarks>
+    public async Task ClearKeyAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
+    {
+        try
+        {
+            var db = GetDatabase();
+            await db.KeyDeleteAsync(key, flags);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"Unable to delete the key '{key}'");
+        }
+    }
+
+
+    /// <summary>
+    /// Gets a database so that you can interact directly with the Redis service rather than use the
+    /// wrapper methods in the interface.
+    /// </summary>
     public IDatabase GetDatabase()
     {
         _redis ??= ConnectionMultiplexer.Connect(_settings.RedisConnection);

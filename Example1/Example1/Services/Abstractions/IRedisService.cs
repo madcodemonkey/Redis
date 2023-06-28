@@ -4,6 +4,23 @@ namespace Example1;
 
 public interface IRedisService
 {
+
+    /// <summary>
+    /// Clears a Redis key
+    /// </summary>
+    /// <param name="key">The key to delete/remove.</param>
+    /// <param name="flags">The flags to use for this operation.</param>
+    /// <remarks>
+    /// <seealso href="https://redis.io/commands/del"/>,
+    /// <seealso href="https://redis.io/commands/unlink"/>
+    /// </remarks>
+    Task ClearKeyAsync(RedisKey key, CommandFlags flags = CommandFlags.None);
+
+
+    /// <summary>
+    /// Gets a database so that you can interact directly with the Redis service rather than use the
+    /// wrapper methods in the interface.
+    /// </summary>
     IDatabase GetDatabase();
 
     /// <summary>
