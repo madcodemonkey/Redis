@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using StackExchange.Redis;
 
 namespace Example1;
 
@@ -40,7 +41,10 @@ public class CacheStringService : ICacheStringService
     /// <returns>The item you or null</returns>
     public async Task<TItem?> GetAsync<TItem>(string key, TimeSpan expiry, Func<Task<TItem?>> fallback) where TItem : class
     {
-        var cachedData = _memoryCache.Get<CachedData<TItem>>(key);
+        string cacheSyncKey = $"{PrefixForSync}{key}";
+        string cacheDataKey = $"{PrefixForData}{key}";
+
+        var cachedData = _memoryCache.Get<CachedData<TItem>>(cacheDataKey);
 
         // To reduce the number of hits on Redis cache, we will NOT check cache unless a certain
         // amount of time passes. This avoid us hitting cache repeatedly (sub-second) to find out
@@ -54,7 +58,7 @@ public class CacheStringService : ICacheStringService
             }
         }
 
-        var redisSyncId = await _redisService.StringGetAsync($"{PrefixForSync}{key}");
+        var redisSyncId = await _redisService.StringGetAsync(cacheSyncKey);
       
         // If Redis has data, compare it to what we have locally
         if (string.IsNullOrWhiteSpace(redisSyncId) == false)
@@ -63,7 +67,7 @@ public class CacheStringService : ICacheStringService
             // Redis cache.
             if (cachedData == null || cachedData.SyncId != redisSyncId)
             {
-                string? dataAsString = await _redisService.StringGetAsync($"{PrefixForData}{key}");
+                string? dataAsString = await _redisService.StringGetAsync(cacheDataKey);
                 if (string.IsNullOrWhiteSpace(dataAsString) == false)
                 {
                     try
@@ -79,7 +83,7 @@ public class CacheStringService : ICacheStringService
                             SyncId = redisSyncId
                         };
 
-                        UpdateMemoryCache(key, cachedData);
+                        UpdateMemoryCache(cacheDataKey, cachedData);
                     }
                     catch (Exception ex)
                     {
@@ -106,7 +110,7 @@ public class CacheStringService : ICacheStringService
             // Update Redis cache with new fresh data if the fallback could find some.
             if (cachedData != null)
             {
-                UpdateMemoryCache(key, cachedData);
+                UpdateMemoryCache(cacheDataKey, cachedData);
 
                 // WARNING 1: The JsonSerializerSettings used below will cause us to prune off parts
                 // of an object. For example, on the SystemApplication object, it will prune off
@@ -129,8 +133,8 @@ public class CacheStringService : ICacheStringService
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 });
 
-                await _redisService.StringSetAsync($"{PrefixForSync}{key}", cachedData.SyncId, expiry);
-                await _redisService.StringSetAsync($"{PrefixForData}{key}", serializedData, expiry);
+                await _redisService.StringSetAsync(cacheSyncKey, cachedData.SyncId, expiry);
+                await _redisService.StringSetAsync(cacheDataKey, serializedData, expiry);
             }
         }
 
@@ -164,11 +168,23 @@ public class CacheStringService : ICacheStringService
             return null;
         }
 
+        // Did the user use seconds or something larger?
+        DateTime newExpirationTime;
+        if (expiry.TotalMinutes < 1)
+        {
+            newExpirationTime = DateTime.UtcNow + TimeSpan.FromSeconds(expiry.TotalSeconds * 2);
+        }
+        else
+        {
+            newExpirationTime = DateTime.UtcNow + TimeSpan.FromMinutes(expiry.TotalMinutes * 2);
+        }
+
+
         // Update memory cache
         var cachedData = new CachedData<TItem>
         {
             Data = fallbackData,
-            ExpirationTime = DateTime.UtcNow + TimeSpan.FromMinutes(expiry.TotalMinutes * 2),
+            ExpirationTime = newExpirationTime,
             LastTimeOutOfSyncWasChecked = DateTime.UtcNow,
             SyncId = Guid.NewGuid().ToString()
         };

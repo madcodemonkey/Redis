@@ -10,22 +10,29 @@ ILogger<Program> logger = serviceProvider.GetRequiredService<ILogger<Program>>()
 
 try
 {
-    Console.WriteLine("------------------------------ Start String test -------------------------------------");
-    var stringTest = serviceProvider.GetRequiredService<IStringTesting>();
+    Console.WriteLine("------------------------------ Start Redis Service String test -------------------------------------");
+    var stringTest = serviceProvider.GetRequiredService<IRedisServiceStringTesting>();
     await stringTest.WorkAsync(config);
-    Console.WriteLine("------------------------------ End String test -------------------------------------");
+    Console.WriteLine("------------------------------ End Redis Service String test -------------------------------------");
 
 
-    Console.WriteLine("------------------------------ Start HASH test -------------------------------------");
-    var hashTest = serviceProvider.GetRequiredService<IHashEntryTesting>();
+    Console.WriteLine("------------------------------ Start Redis Service HASH test -------------------------------------");
+    var hashTest = serviceProvider.GetRequiredService<IRedisServiceHashEntryTesting>();
     await hashTest.WorkAsync(config);
-    Console.WriteLine("------------------------------ End HASH test -------------------------------------");
+    Console.WriteLine("------------------------------ End Redis Service HASH test -------------------------------------");
 
-    Console.WriteLine("------------------------------ Start CACHE HASH test -------------------------------------");
+    Console.WriteLine("------------------------------ Start Memory CACHE with Redis: HASH test -------------------------------------");
     var cacheHashTest = serviceProvider.GetRequiredService<ICacheHashEntryTesting>();
     await cacheHashTest.WorkAsync(config);
-    Console.WriteLine("------------------------------ End CACHE HASH test -------------------------------------");
+    Console.WriteLine("------------------------------ End Memory CACHE with Redis: HASH test -------------------------------------");
 
+    Console.WriteLine("------------------------------ Start Memory CACHE with Redis: STRING test -------------------------------------");
+    var cacheStringTest = serviceProvider.GetRequiredService<ICacheStringServiceTesting>();
+    await cacheStringTest.WorkAsync(config);
+    Console.WriteLine("------------------------------ End Memory CACHE with Redis: STRING test -------------------------------------");
+
+
+    
 }
 catch (Exception ex)
 {
@@ -49,13 +56,14 @@ static IServiceProvider RegisterDependencies(IConfiguration configuration)
     // Singletons
     collection.AddSingleton(settings);
     collection.AddSingleton<IRedisService, RedisService>();
-    collection.AddSingleton<IMemoryCache, MemoryCache>(); 
+    collection.AddSingleton<IMemoryCache, MemoryCache>();
     // Transient
-    collection.AddTransient<ICacheHashEntryTesting, CacheHashEntryTesting>();
+    collection.AddTransient<ICacheHashEntryTesting, CacheHashSetServiceTesting>();
+    collection.AddTransient<ICacheStringServiceTesting, CacheStringServiceTesting>();
     collection.AddTransient<ICacheStringService, CacheStringService>();
     collection.AddTransient<ICacheHashSetService, CacheHashSetService>();
-    collection.AddTransient<IHashEntryTesting, HashEntryTesting>();
-    collection.AddTransient<IStringTesting, StringTesting>();
+    collection.AddTransient<IRedisServiceHashEntryTesting, RedisServiceHashEntryTesting>();
+    collection.AddTransient<IRedisServiceStringTesting, RedisServiceStringTesting>();
     
     var serviceProvider = collection.BuildServiceProvider();
  

@@ -1,17 +1,15 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.Configuration;
-using StackExchange.Redis;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace Example1;
 
 /// <summary>
-/// Uses CacheHashSetService 
+/// Uses CacheStringService 
 /// </summary>
-public class CacheHashEntryTesting : ICacheHashEntryTesting
+public class CacheStringServiceTesting : ICacheStringServiceTesting
 {
-    private readonly ICacheHashSetService _cacheService;
+    private readonly ICacheStringService _cacheService;
 
-    public CacheHashEntryTesting(ICacheHashSetService cacheService)
+    public CacheStringServiceTesting(ICacheStringService cacheService)
     {
         _cacheService = cacheService;
     }
@@ -27,18 +25,18 @@ public class CacheHashEntryTesting : ICacheHashEntryTesting
 
 
         Console.WriteLine($"{Environment.NewLine}Getting when not present...expecting Davide Columbo");
-        var result1 =  await _cacheService.GetAsync<Employee>(key, TimeSpan.FromSeconds(3), GetEmployee1Async);
+        var result1 =  await _cacheService.GetAsync<Employee>(key, TimeSpan.FromSeconds(5), GetEmployee1Async);
         Console.WriteLine($"{Environment.NewLine}Result: {result1}");
 
         Console.WriteLine($"{Environment.NewLine}Getting from cache present...expecting Davide Columbo");
-        var result2 = await _cacheService.GetAsync<Employee>(key, TimeSpan.FromSeconds(3), GetEmployee2Async);
+        var result2 = await _cacheService.GetAsync<Employee>(key, TimeSpan.FromSeconds(5), GetEmployee2Async);
         Console.WriteLine($"{Environment.NewLine}Result: {result2}");
 
         Console.WriteLine("Waiting 12 seconds to see if memory cache expires...");
         await Task.Delay(TimeSpan.FromSeconds(12));
 
         Console.WriteLine($"{Environment.NewLine}Cache should be gone...expecting new Get to return Roger Moore");
-        var result3 = await _cacheService.GetAsync<Employee>(key, TimeSpan.FromSeconds(3), GetEmployee2Async);
+        var result3 = await _cacheService.GetAsync<Employee>(key, TimeSpan.FromSeconds(5), GetEmployee2Async);
         Console.WriteLine($"{Environment.NewLine}Result: {result3}");
 
     }
@@ -47,13 +45,13 @@ public class CacheHashEntryTesting : ICacheHashEntryTesting
     {
         Employee e007 = new Employee("007", "Davide Columbo", 45);
 
-       return  await Task.FromResult(e007);
+        return  await Task.FromResult(e007);
     }
 
     private async Task<Employee?> GetEmployee2Async()
     {
         Employee e007 = new Employee("007", "Roger Moore", 67);
 
-       return await Task.FromResult(e007);
+        return await Task.FromResult(e007);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Example1;
 
-public interface IStringTesting
+public interface IRedisServiceHashEntryTesting
 {
     Task WorkAsync(IConfiguration config);
 }

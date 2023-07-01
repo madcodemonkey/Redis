@@ -7,11 +7,11 @@ namespace Example1;
 /// <summary>
 /// Uses IRedisService directly
 /// </summary>
-public class HashEntryTesting : IHashEntryTesting
+public class RedisServiceHashEntryTesting : IRedisServiceHashEntryTesting
 {
     private readonly IRedisService _redisService;
 
-    public HashEntryTesting(IRedisService redisService)
+    public RedisServiceHashEntryTesting(IRedisService redisService)
     {
         _redisService = redisService;
     }

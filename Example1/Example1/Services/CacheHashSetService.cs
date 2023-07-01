@@ -167,12 +167,23 @@ public class CacheHashSetService : ICacheHashSetService
         {
             return null;
         }
+        
+        // Did the user use seconds or something larger?
+        DateTime newExpirationTime;
+        if (expiry.TotalMinutes < 1)
+        {
+            newExpirationTime = DateTime.UtcNow + TimeSpan.FromSeconds(expiry.TotalSeconds * 2);
+        }
+        else
+        {
+            newExpirationTime = DateTime.UtcNow + TimeSpan.FromMinutes(expiry.TotalMinutes * 2);
+        }
 
         // Update memory cache
         var cachedData = new CachedData<TItem>
         {
             Data = fallbackData,
-            ExpirationTime = DateTime.UtcNow + TimeSpan.FromMinutes(expiry.TotalMinutes * 2),
+            ExpirationTime = newExpirationTime,
             LastTimeOutOfSyncWasChecked = DateTime.UtcNow,
             SyncId = Guid.NewGuid().ToString()
         };

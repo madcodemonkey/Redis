@@ -9,11 +9,11 @@ namespace Example1;
 /// on github <see href="https://github.com/Azure-Samples/azure-cache-redis-samples/tree/main/quickstart/dotnet-core"/>.  You'll notice that the use
 /// a connection object and make reference to using Polly.  Most people don't do that, but you might need something similar.
 /// </summary>
-public class StringTesting : IStringTesting
+public class RedisServiceStringTesting : IRedisServiceStringTesting
 {
     private readonly IRedisService _redisService;
 
-    public StringTesting(IRedisService redisService)
+    public RedisServiceStringTesting(IRedisService redisService)
     {
         _redisService = redisService;
     }
@@ -25,6 +25,8 @@ public class StringTesting : IStringTesting
     /// <returns></returns>
     public async Task WorkAsync(IConfiguration config)
     {
+        var expiry = TimeSpan.FromMinutes(2);
+
         // Simple PING command
         Console.WriteLine($"{Environment.NewLine}Cache command: PING");
         RedisResult pingResult = await _redisService.ExecuteAsync("PING");
@@ -39,7 +41,7 @@ public class StringTesting : IStringTesting
         Console.WriteLine($"Cache response: {getMessageResult}");
 
         Console.WriteLine($"{Environment.NewLine}Cache command: SET {key} \"{value}\" via StringSetAsync()");
-        bool stringSetResult = await _redisService.StringSetAsync(key, value);
+        bool stringSetResult = await _redisService.StringSetAsync(key, value, expiry);
         Console.WriteLine($"Cache response: {stringSetResult}");
 
         Console.WriteLine($"{Environment.NewLine}Cache command: GET {key} via StringGetAsync()");
@@ -48,7 +50,7 @@ public class StringTesting : IStringTesting
 
         // Store serialized object to cache
         Employee e007 = new Employee("007", "Davide Columbo", 100);
-        stringSetResult = await _redisService.StringSetAsync("e007", JsonSerializer.Serialize(e007));
+        stringSetResult = await _redisService.StringSetAsync("e007", JsonSerializer.Serialize(e007), expiry);
         Console.WriteLine($"{Environment.NewLine}Cache response from storing serialized Employee object: {stringSetResult}");
 
         // Retrieve serialized object from cache

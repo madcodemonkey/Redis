@@ -2,7 +2,7 @@
 
 namespace Example1;
 
-public interface IHashEntryTesting
+public interface ICacheStringServiceTesting
 {
     Task WorkAsync(IConfiguration config);
 }
